@@ -11,7 +11,7 @@ int main()
   cin>>equal;
   srand(time(NULL));
   int delta = 1 + rand()%750;
-  for(int i = 0; i < 40; i++)
+  for(int i = 0; i < 35; i++)
   {
     int randomcordx = 750 + rand()%9250;
     int randomcordy = 750 + rand()%9250;
@@ -20,7 +20,7 @@ int main()
       randomdelta = delta;
     else
       randomdelta = 1 + rand()%750;
-    for(int j = 0; j < 400; j++)
+    for(int j = 0; j < 200; j++)
     {
       int x = rand()%randomdelta;
       int y = 1 + ceil(sqrt(randomdelta*randomdelta - x*x));

@@ -2,7 +2,7 @@ read equal
 if [[ "$equal" == "y" ]]; then
   delta=$(($RANDOM%750))
 fi
-for((i = 0; i < 40; i++)); do
+for((i = 0; i < 35; i++)); do
   lowerx=$(($RANDOM%9250))
   upperx=$(($lowerx + $RANDOM%750))
   if [[ "$equal" == "y" ]]; then
@@ -17,7 +17,7 @@ for((i = 0; i < 40; i++)); do
   else
     deltay=$(($uppery - $lowery + 1))
   fi
-  for((j = 0; j < 400; j++)); do
+  for((j = 0; j < 200; j++)); do
     echo "$(($lowerx + $RANDOM%deltax)) $(($lowery + $RANDOM%deltay))"
   done
 done

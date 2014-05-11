@@ -1,6 +1,7 @@
 # Remove previous leftover files
 rm points.dat 2>/dev/null
 rm clustered_points_dbscan.dat 2>/dev/null
+rm clustered_points_slink.dat 2>/dev/null
 rm clustered_points_kmeans.dat 2>/dev/null
 rm sse.dat 2>/dev/null
 rm a.out 2>/dev/null
@@ -60,4 +61,15 @@ rm a.out 2>/dev/null
 # Plot SSE from K-Means
 echo "plot \"sse.dat\" title 'SSE vs K for K-Means' with points" >> plotcommand
 gnuplot < plotcommand --persist
+rm plotcommand 2>/dev/null
+
+# Run SLINK agglomerative clustering
+echo ""
+echo "Running SLINK:-"
+g++ SLINK.cpp
+./a.out
+echo "set palette model HSV defined (0 0 1 1, 1 1 1 1)" > plotcommand
+echo "plot \"clustered_points_slink.dat\" u 1:2:3 title 'SLINK Clustering' with points palette" >> plotcommand
+gnuplot < plotcommand --persist
+rm a.out 2>/dev/null
 rm plotcommand 2>/dev/null
