@@ -71,10 +71,22 @@ void update_clusters()
     clusters[cluster[i]].first += points[i].first;
     clusters[cluster[i]].second += points[i].second;
   }
-  for(int i = 1; i <= k; i++)
+  int erasedcount = 0;
+  for(int i = 1; i < clusters.size(); i++)
   {
+    if(clustercount[i] == 0)
+    {
+      clusters.erase(clusters.begin()+i);
+      clustercount.erase(clustercount.begin()+i);
+      erasedcount++;
+    }
     clusters[i].first /= (double) clustercount[i];
     clusters[i].second /= (double) clustercount[i];
+  }
+  for(int i = 0; i < erasedcount; i++)
+  {
+    clusters.push_back(points[rand()%points.size()]);
+    clustercount.push_back(0);
   }
 }
 
@@ -109,10 +121,10 @@ void initialize_clusters()
     int chosenpoint = 0;
     for(int j = 0; j < points.size(); j++)
     {
-      double d = 0;
+      double d = 0.0;
       for(int l = 1; l < clusters.size(); l++)
         d += eu_distance(clusters[l], points[j]);
-      d /= clusters.size();
+      d /= (double) clusters.size();
       if(d > maxd)
       {
         maxd = d;
@@ -159,6 +171,7 @@ int main()
 
     int change;
     int iterations = 0;
+    
     do
     {
       vector<int> oldcounts = clustercount;
@@ -166,7 +179,7 @@ int main()
       update_clusters();
       change = calculate_change(oldcounts, clustercount);
       iterations++;
-    }while(change > 0);
+    } while(change > 0);
     
     double sse = compute_sse();
     sseout<<k<<" "<<sse<<"\n";
@@ -202,6 +215,7 @@ int main()
       max = bestcluster[i];
     i++;
   }
+
   numclusters = max;
   fin.close();
   fout.close();
