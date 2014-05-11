@@ -94,6 +94,37 @@ double compute_sse()
   return answer;
 }
 
+void initialize_clusters()
+{
+  clusters = vector<dd>();
+  clustercount = vector<int>();
+  clusters.push_back(dd(0.0,0.0));
+  clustercount.push_back(0);
+  ii newcluster = points[rand()%points.size()];
+  clusters.push_back(dd((double) newcluster.first, (double) newcluster.second));
+  clustercount.push_back(0);
+  for(int i = 1; i < k; i++)
+  {
+    double maxd = 0;
+    int chosenpoint = 0;
+    for(int j = 0; j < points.size(); j++)
+    {
+      double d = 0;
+      for(int l = 1; l < clusters.size(); l++)
+        d += eu_distance(clusters[l], points[j]);
+      d /= clusters.size();
+      if(d > maxd)
+      {
+        maxd = d;
+        chosenpoint = j;
+      }
+    }
+    newcluster = points[chosenpoint];
+    clusters.push_back(dd((double) newcluster.first, (double) newcluster.second));
+    clustercount.push_back(0);
+  }
+}
+
 int main()
 {
   int x, y;
@@ -124,16 +155,7 @@ int main()
   for(k = max(klow, 1); k <= khigh; k++)
   {
     changed = false;
-    clusters = vector<dd>();
-    clustercount = vector<int>();
-    clusters.push_back(dd(0.0,0.0));
-    clustercount.push_back(0);
-    for(int i = 0; i < k; i++)
-    {
-      ii newcluster = points[rand()%points.size()];
-      clusters.push_back(dd((double) newcluster.first, (double) newcluster.second));
-      clustercount.push_back(0);
-    }
+    initialize_clusters();
 
     int change;
     int iterations = 0;
@@ -163,14 +185,14 @@ int main()
     }
 
     if(changed)
-      bestcluster = cluster;
+      bestcluster = vector<int>(cluster);
   }
   sseout.close();
 
   fin.open("points.dat"); 
   fout.open("clustered_points_kmeans.dat");
   int i = 0;
-  int max = cluster[0];
+  int max = bestcluster[0];
 
   while(!fin.eof())
   {

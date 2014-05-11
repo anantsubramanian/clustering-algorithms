@@ -6,14 +6,28 @@ rm sse.dat 2>/dev/null
 rm a.out 2>/dev/null
 
 echo "Globular or Rectangular clusters? (g = Globular, r = Rectangular): "
-read input
-if [[ "$input" == "g" ]]; then
+read input1
+echo "Approx. equal size clusters? (y = Yes, n = No): "
+read input2
+if [[ "$input1" == "g" ]]; then
   echo "Globular clusters chosen"
   g++ generatedata.cpp
-  ./a.out > points.dat
+  if [[ "$input2" == "y" ]]; then
+    echo "Equal size clusters chosen"
+    echo "y" | ./a.out > points.dat
+  else
+    echo "Cluster sizes not necessarily equal"
+    echo "n" | ./a.out > points.dat
+  fi
 else
   echo "Rectangular clusters chosen"
-  ./generatedata.sh > points.dat
+  if [[ "$input2" == "y" ]]; then
+    echo "Equal size clusters chosen"
+    echo "y" | ./generatedata.sh > points.dat
+  else
+    echo "Cluster sizes not necessarily equal"
+    echo "n" | ./generatedata.sh > points.dat
+  fi
 fi
 
 echo ""
