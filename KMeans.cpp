@@ -79,6 +79,8 @@ void update_clusters()
       clusters.erase(clusters.begin()+i);
       clustercount.erase(clustercount.begin()+i);
       erasedcount++;
+      if(i == clusters.size())
+        break;
     }
     clusters[i].first /= (double) clustercount[i];
     clusters[i].second /= (double) clustercount[i];
