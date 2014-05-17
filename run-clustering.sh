@@ -2,6 +2,7 @@
 rm points.dat 2>/dev/null
 rm clustered_points_dbscan.dat 2>/dev/null
 rm clustered_points_slink.dat 2>/dev/null
+rm clustered_points_clink.dat 2>/dev/null
 rm clustered_points_kmeans.dat 2>/dev/null
 rm sse.dat 2>/dev/null
 rm a.out 2>/dev/null
@@ -31,13 +32,13 @@ else
   fi
 fi
 
+# Run DBSCAN density based clustering
 echo ""
 echo "Running DBSCAN:-"
 rm a.out 2>/dev/null
 echo "plot \"points.dat\" title 'Unclustered Data' with points" | gnuplot --persist
 g++ DBSCAN.cpp
 ./a.out
-echo ""
 echo "set palette model HSV defined (0 0 1 1, 1 1 1 1)" > plotcommand
 echo "plot \"clustered_points_dbscan.dat\" u 1:2:3 title 'DBSCAN Clustering' with points palette" >> plotcommand
 gnuplot < plotcommand --persist
@@ -46,10 +47,11 @@ gnuplot < plotcommand --persist
 rm plotcommand 2>/dev/null
 rm a.out 2>/dev/null
 
+# Run K-Means centroid based clustering
+echo ""
 echo "Running K-Means:-"
 g++ KMeans.cpp
 ./a.out
-echo""
 echo "set palette model HSV defined (0 0 1 1, 1 1 1 1)" > plotcommand
 echo "plot \"clustered_points_kmeans.dat\" u 1:2:3 title 'K-Means Clustering' with points palette" >> plotcommand
 gnuplot < plotcommand --persist
@@ -71,5 +73,32 @@ g++ SLINK.cpp
 echo "set palette model HSV defined (0 0 1 1, 1 1 1 1)" > plotcommand
 echo "plot \"clustered_points_slink.dat\" u 1:2:3 title 'SLINK Clustering' with points palette" >> plotcommand
 gnuplot < plotcommand --persist
+
+# Remove SLINK data
 rm a.out 2>/dev/null
 rm plotcommand 2>/dev/null
+
+# Run CLINK agglomerative clustering
+echo ""
+echo "Running CLINK:-"
+g++ CLINK.cpp
+./a.out
+echo "set palette model HSV defined (0 0 1 1, 1 1 1 1)" > plotcommand
+echo "plot \"clustered_points_clink.dat\" u 1:2:3 title 'CLINK Clustering' with points palette" >> plotcommand
+gnuplot < plotcommand --persist
+
+# Remove CLINK data
+rm a.out 2>/dev/null
+rm plotcommand 2>/dev/null
+
+echo "Remove data points and clustering data? (y = Yes): "
+read cleanup
+if [[ "$cleanup" == "y" ]]; then
+  rm points.dat 2>/dev/null
+  rm clustered_points_dbscan.dat 2>/dev/null
+  rm clustered_points_slink.dat 2>/dev/null
+  rm clustered_points_kmeans.dat 2>/dev/null
+  rm clustered_points_clink.dat 2>/dev/null
+  rm sse.dat 2>/dev/null
+  echo "Cleanup complete"
+fi
