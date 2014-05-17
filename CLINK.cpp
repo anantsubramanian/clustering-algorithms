@@ -1,4 +1,4 @@
-// TODO: Reduce complexity from O(n^3) to atleast O((n^2)logn), if not O(n^2)
+// TODO: Optimize O((n^2)logn) algorithm to O(n^2)
 
 #include <iostream>
 #include <fstream>
@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <set>
 
-#define INF 1000000000
-
 using namespace std;
 
 typedef pair<int, int> ii;
@@ -16,6 +14,26 @@ typedef pair<int, int> ii;
 vector<ii> points;
 vector<int> cluster;
 vector<int> newcluster;
+vector< vector<double> > distances;
+
+struct comp
+{
+  bool operator()(ii a, ii b)
+  {
+    if(distances[a.first][a.second] < distances[b.first][b.second])
+      return true;
+    else if(distances[a.first][a.second] > distances[b.first][b.second])
+      return false;
+    else
+    {
+      if(a.first < b.first)
+        return true;
+      else if(a.first > b.first)
+        return false;
+      else return a.second < b.second;
+    }
+  }
+};
 
 double eu_distance(ii p1, ii p2)
 {
@@ -31,30 +49,46 @@ int relax(int u)
   else return cluster[u] = relax(cluster[u]);
 }
 
-ii getAndSetMin(vector< vector<int> > &distances)
+ii getAndSetMin(set<ii, comp> &Q)
 {
-  int mini = distances[0][0];
-  int posi = 0, posj = 0;
-  for(int i = 0; i < distances.size(); i++)
-    for(int j = 0; j < distances.size(); j++)
-    {
-      if(mini > distances[i][j])
-      {
-        mini = distances[i][j];
-        posi = i;
-        posj = j;
-      }
-    }
-  distances[posi][posj] = distances[posj][posi] = INF;
-  return ii(posi, posj);
+  ii temp = *Q.begin();
+  Q.erase(*Q.begin());
+  return temp;
 }
 
-void updateValues(int u, int v, vector< vector<int> > &distances)
+void updateValues(int u, int v, set<ii, comp> &Q)
 {
   for(int i = 0; i < distances.size(); i++)
-    distances[u][i] = distances[v][i] = distances[i][u] = distances[i][v]
-      = max(distances[u][i], distances[v][i]);
+  {
+    if(i < u)
+      Q.erase(ii(u,i));
+    else if(i > u)
+      Q.erase(ii(i, u));
+    if(i < v)
+      Q.erase(ii(v,i));
+    else if(i > v)
+      Q.erase(ii(i,v));
+    if(i > u)
+    {
+      if(i > v)
+        distances[i][u] = distances[i][v] = max(distances[i][u], distances[i][v]);
+      else if(v > i)
+        distances[i][u] = distances[v][i] = max(distances[i][u], distances[v][i]);
+    }
+    else if(u > i)
+    {
+      if(i > v)
+        distances[u][i] = distances[i][v] = max(distances[u][i], distances[i][v]);
+      else if(v > i)
+        distances[u][i] = distances[v][i] = max(distances[u][i], distances[v][i]);
+    }
+    if(u > i)
+      Q.insert(ii(u, i));
+    else if(i > u)
+      Q.insert(ii(i, u));
+  }
 }
+
 
 int main()
 {
@@ -76,20 +110,19 @@ int main()
   }
   fin.close();
   
+  set<ii, comp> Q;
   int numclusters = points.size();
-  vector< vector<int> > distances(numclusters);
-  for(int i = 0; i < points.size(); i++)
-    for(int j = 0; j < points.size(); j++)
+  distances = vector< vector<double> >(numclusters);
+  for(int i = 1; i < points.size(); i++)
+    for(int j = 0; j < i; j++)
     {
-      if(i != j)
         distances[i].push_back(eu_distance(points[i], points[j]));
-      else
-        distances[i].push_back(INF);
+        Q.insert(ii(i, j));
     }
 
   while(numclusters > expectednum)
   {
-    ii minpos = getAndSetMin(distances);
+    ii minpos = getAndSetMin(Q);
     int u = minpos.first;
     int v = minpos.second;
 
@@ -100,7 +133,7 @@ int main()
       continue;
     
     cluster[cluster[v]] = cluster[u];
-    updateValues(u, v, distances);
+    updateValues(u, v, Q);
     numclusters--;
   }
   
