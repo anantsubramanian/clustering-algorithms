@@ -52,7 +52,7 @@ int relax(int u)
 ii getAndSetMin(set<ii, comp> &Q)
 {
   ii temp = *Q.begin();
-  Q.erase(*Q.begin());
+  Q.erase(temp);
   return temp;
 }
 
@@ -60,35 +60,35 @@ void updateValues(int u, int v, set<ii, comp> &Q)
 {
   for(int i = 0; i < distances.size(); i++)
   {
+    bool igu = false, igv = false;
     if(i < u)
       Q.erase(ii(u,i));
     else if(i > u)
+    {
+      igu = true;
       Q.erase(ii(i, u));
+    }
     if(i < v)
       Q.erase(ii(v,i));
     else if(i > v)
+    {
+      igv = true;
       Q.erase(ii(i,v));
-    if(i > u)
-    {
-      if(i > v)
-        distances[i][u] = distances[i][v] = max(distances[i][u], distances[i][v]);
-      else if(v > i)
-        distances[i][u] = distances[v][i] = max(distances[i][u], distances[v][i]);
     }
-    else if(u > i)
-    {
-      if(i > v)
-        distances[u][i] = distances[i][v] = max(distances[u][i], distances[i][v]);
-      else if(v > i)
-        distances[u][i] = distances[v][i] = max(distances[u][i], distances[v][i]);
-    }
-    if(u > i)
-      Q.insert(ii(u, i));
-    else if(i > u)
+    if(igu && igv)
+      distances[i][u] = distances[i][v] = max(distances[i][u], distances[i][v]);
+    else if(igu && !igv)
+      distances[i][u] = distances[v][i] = max(distances[i][u], distances[v][i]);
+    else if(!igu && igv)
+      distances[u][i] = distances[i][v] = max(distances[u][i], distances[i][v]);
+    else if(!igu && !igv)
+      distances[u][i] = distances[v][i] = max(distances[u][i], distances[v][i]);
+    if(igu)
       Q.insert(ii(i, u));
+    else
+      Q.insert(ii(u, i));
   }
 }
-
 
 int main()
 {
